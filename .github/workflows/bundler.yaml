@@ -1,0 +1,32 @@
+name: bundler
+
+on:
+  push:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_DIR: build
+      BUNDLE_FILE: update-ros-pkg-versions.js
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+      - name: Install Deno (Unix)
+        run: |
+          curl -fsSL https://deno.land/x/install/install.sh | sh
+          echo "$HOME/.deno/bin" >> $GITHUB_PATH
+      - name: Run tests
+        run: deno test --coverage=./cov --unstable --allow-all
+      - name: Create bundle
+        run: |
+          mkdir build
+          deno bundle --lock lock.json src/index.ts ${BUNDLE_DIR}/${BUNDLE_FILE}
+      - name: Push to deploy branch
+        run: |
+          git config --global user.name 'Audrow Nash'
+          git config --global user.email 'audrow@users.noreply.github.com'
+          git checkout -b deploy
+          git add ${BUNDLE_DIR}/${BUNDLE_FILE}
+          git commit -sm "Automated bundle operation"
+          git push origin deploy --force
