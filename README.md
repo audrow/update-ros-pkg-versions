@@ -19,16 +19,26 @@ curl -fsSL https://deno.land/x/install/install.sh | sh
 iwr https://deno.land/x/install/install.ps1 -useb | iex
 ```
 
-## Setup
+## Installation
 
-To get started, clone this repository.
+There are two ways to use this project on your own machine:
 
-You can run this script with the following command:
+1. Install the project from the web.
+2. Install the project locally.
+
+### Install from the web
+
+To install the project from the web, run the following command:
 
 ```bash
-cd update-ros-pkg-versions
-deno run --allow-read --allow-write src/index.ts --help
+deno install --allow-read --allow-write https://raw.githubusercontent.com/audrow/update-ros-pkg-versions/deploy/build/update-ros-pkg-versions.js
+# uninstall with
+# deno uninstall update-ros-pkg-versions
 ```
+
+### Install locally
+
+First clone this repository.
 
 To install this script, run the following command:
 
