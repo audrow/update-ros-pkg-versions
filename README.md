@@ -11,7 +11,7 @@ the following command:
 
 ```bash
 # Mac / Linux
-curl -fsSL https://deno.land/x/install/install.sh | sh
+curl -fsSL https://deno.land/install.sh | sh
 ```
 
 ```powershell
