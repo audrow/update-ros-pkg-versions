@@ -16,7 +16,7 @@ curl -fsSL https://deno.land/install.sh | sh
 
 ```powershell
 # Windows
-iwr https://deno.land/x/install/install.ps1 -useb | iex
+iwr https://deno.land/install.ps1 -useb | iex
 ```
 
 ## Setup
