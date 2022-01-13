@@ -6,6 +6,7 @@ import {
   getSetupPyVersion,
   getVersionFromString,
   getVersionString,
+  setChangeLogVersion,
   setPackageXmlVersion,
   setSetupPyVersion,
 } from "../update_package/index.ts";
@@ -27,10 +28,12 @@ export function getPathToFileDirectory() {
 
 export async function getFileVersion(path: string) {
   const fileText = await Deno.readTextFile(path);
-  if (path.endsWith(".xml")) {
+  if (path.endsWith("package.xml")) {
     return getPackageXmlVersion(fileText);
-  } else if (path.endsWith(".py")) {
+  } else if (path.endsWith("setup.py")) {
     return getSetupPyVersion(fileText);
+  } else if (path.endsWith("CHANGELOG.rst")) {
+    throw new Error(`Cannot get version from CHANGELOG.rst: ${path}`);
   } else {
     throw new Error(`Unknown file type: ${path}`);
   }
@@ -39,10 +42,12 @@ export async function getFileVersion(path: string) {
 export async function setFileVersion(path: string, version: Version) {
   const fileText = await Deno.readTextFile(path);
   let newFileText;
-  if (path.endsWith(".xml")) {
+  if (path.endsWith("package.xml")) {
     newFileText = setPackageXmlVersion(fileText, version);
-  } else if (path.endsWith(".py")) {
+  } else if (path.endsWith("setup.py")) {
     newFileText = setSetupPyVersion(fileText, version);
+  } else if (path.endsWith("CHANGELOG.rst")) {
+    newFileText = setChangeLogVersion(fileText, version);
   } else {
     throw new Error(`Unknown file type: ${path}`);
   }
@@ -56,20 +61,28 @@ export async function bumpFileVersion(path: string, bumpType: BumpType) {
 }
 
 export async function bumpFiles(directory: string, bumpType: BumpType) {
-  for (const file of await getFilePaths(directory)) {
-    await bumpFileVersion(file, bumpType);
+  const currentVersion = await getVersion(directory);
+  const newVersion = bumpVersion(currentVersion, bumpType);
+  for (
+    const file of await getFilePaths(directory, { isIncludeChangeLog: true })
+  ) {
+    await setFileVersion(file, newVersion);
   }
 }
 
 export async function setFiles(directory: string, version: Version) {
-  for (const file of await getFilePaths(directory)) {
+  for (
+    const file of await getFilePaths(directory, { isIncludeChangeLog: true })
+  ) {
     await setFileVersion(file, version);
   }
 }
 
 export async function getVersion(directory: string): Promise<Version> {
   const versionSet = new Set<string>();
-  for (const file of await getFilePaths(directory)) {
+  for (
+    const file of await getFilePaths(directory, { isIncludeChangeLog: false })
+  ) {
     versionSet.add(getVersionString(await getFileVersion(file)));
   }
   if (versionSet.size !== 1) {
@@ -82,6 +95,16 @@ export async function getVersion(directory: string): Promise<Version> {
   return getVersionFromString(versionSet.values().next().value);
 }
 
-export async function getFilePaths(directory: string) {
-  return await getPathsToFiles(directory, [/package.xml$/, /setup.py$/]);
+export async function getFilePaths(
+  directory: string,
+  options?: { isIncludeChangeLog: boolean },
+) {
+  const matches = [
+    /package.xml$/,
+    /setup.py$/,
+  ];
+  if (options?.isIncludeChangeLog) {
+    matches.push(/CHANGELOG.rst$/);
+  }
+  return await getPathsToFiles(directory, matches);
 }
