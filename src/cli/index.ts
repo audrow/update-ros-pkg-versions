@@ -29,15 +29,15 @@ export function makeCli(args: {
 
   cli
     .command("bump", "Update package versions in a directory")
-    .option("--bump-type <type>", "patch, minor, or major", {
+    .option("-t, --type <type>", "patch, minor, or major", {
       default: args.defaultBumpType,
     })
     .option("-d, --directory <directory>", "Directory to update", {
       default: ".",
     })
     .action(async (options) => {
-      const { directory, bumpType } = options;
-      await args.bumpFn(directory, bumpType as BumpType);
+      const { directory, type } = options;
+      await args.bumpFn(directory, type as BumpType);
     });
 
   cli

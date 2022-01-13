@@ -53,7 +53,7 @@ Deno.test("call bump with path", () => {
 Deno.test("call bump with path", () => {
   const cli = makeTestCli();
   assert(!cli.bumpWatcher.isCalled());
-  cli.run(["bump", "--bump-type", "minor"]);
+  cli.run(["bump", "--type", "minor"]);
   assert(cli.bumpWatcher.isCalled());
   assert(cli.bumpWatcher.callArgs()[0] === ".");
   assert(cli.bumpWatcher.callArgs()[1] === "minor");
