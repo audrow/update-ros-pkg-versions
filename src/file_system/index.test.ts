@@ -51,8 +51,9 @@ runTest("get files in folder", async () => {
   const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
     /package.xml$/,
     /setup.py$/,
+    /CHANGELOG.rst$/,
   ]);
-  assertEquals(paths.length, 5);
+  assertEquals(paths.length, 6);
 });
 
 runTest("get all package versions", async () => {
