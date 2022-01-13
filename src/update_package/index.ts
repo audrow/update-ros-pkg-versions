@@ -29,11 +29,21 @@ export function setSetupPyVersion(text: string, version: Version) {
   return setVersionInText(text, regex, version);
 }
 
+export function setChangeLogVersion(text: string, version: Version) {
+  const regex = /Forthcoming\n-----------/;
+  if (text.match(regex)) {
+    const versionStr = getVersionString(version);
+    const replaceText = versionStr + "\n" + "-".repeat(versionStr.length);
+    return text.replace(regex, replaceText);
+  } else {
+    throw new Error(`Could not set version in the following text:\n\n${text}`);
+  }
+}
+
 function setVersionInText(text: string, regex: RegExp, version: Version) {
-  try {
-    const newText = text.replace(regex, `$1${getVersionString(version)}$3`);
-    return newText;
-  } catch {
+  if (text.match(regex)) {
+    return text.replace(regex, `$1${getVersionString(version)}$3`);
+  } else {
     throw new Error(`Could not set version in the following text:\n\n${text}`);
   }
 }

@@ -4,10 +4,11 @@ import {
   getSetupPyVersion,
   getVersionFromString,
   getVersionString,
+  setChangeLogVersion,
   setPackageXmlVersion,
   setSetupPyVersion,
 } from "./index.ts";
-import { Version } from "./types.ts";
+import { BumpType, Version } from "./types.ts";
 
 import { assertEquals, assertThrows } from "../../deps.test.ts";
 
@@ -98,6 +99,107 @@ and generate xUnit test result files.""",
 )`;
 }
 
+function getSetupPyVariableSetContent(version: string) {
+  return `from setuptools import find_packages
+from setuptools import setup
+
+package_name = 'ament_clang_format'
+
+version_var = '${version}'
+setup(
+    name=package_name,
+    version=version,
+    packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/' + package_name, ['package.xml']),
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+    ],
+    install_requires=['setuptools', 'pyyaml'],
+    package_data={'': [
+        'configuration/.clang-format',
+    ]},
+    zip_safe=False,
+    author='Dirk Thomas',
+    author_email='dthomas@osrfoundation.org',
+    maintainer='Michael Jeronimo, Michel Hidalgo',
+    maintainer_email='michael.jeronimo@openrobotics.org, michel@ekumenlabs.com',
+    url='https://github.com/ament/ament_lint',
+    download_url='https://github.com/ament/ament_lint/releases',
+    keywords=['ROS'],
+    classifiers=[
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python',
+        'Topic :: Software Development',
+    ],
+    description='Check C++ code style using clang-format.',
+    long_description="""\
+The ability to check code against style conventions using clang-format
+and generate xUnit test result files.""",
+    license='Apache License, Version 2.0, BSD',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'ament_clang_format = ament_clang_format.main:main',
+        ],
+    },
+)`;
+}
+
+function getUnsetChangelogContent() {
+  return `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package ament_clang_format
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+* Update maintainers to Michael Jeronimo and Michel Hidalgo (\`#362 <https://github.com/ament/ament_cmake/issues/362>\`_)
+* Contributors: Audrow Nash
+
+1.2.0 (2021-10-29)
+------------------
+* Add ament_cmake_gen_version_h package (\`#198 <https://github.com/ament/ament_cmake/issues/198>\`_)
+* Use FindPython3 instead of FindPythonInterp (\`#355 <https://github.com/ament/ament_cmake/issues/355>\`_)
+* Update maintainers (\`#336 <https://github.com/ament/ament_cmake/issues/336>\`_)
+* Contributors: Chris Lalancette, Shane Loretz, serge-nikulin
+
+1.1.4 (2021-05-06)
+------------------
+
+1.1.3 (2021-03-09)
+------------------
+
+`;
+}
+
+function getChangelogContent(version: string) {
+  const replacementText = version + "\n" + "-".repeat(version.length);
+
+  return `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package ament_clang_format
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+${replacementText}
+* Update maintainers to Michael Jeronimo and Michel Hidalgo (\`#362 <https://github.com/ament/ament_cmake/issues/362>\`_)
+* Contributors: Audrow Nash
+
+1.2.0 (2021-10-29)
+------------------
+* Add ament_cmake_gen_version_h package (\`#198 <https://github.com/ament/ament_cmake/issues/198>\`_)
+* Use FindPython3 instead of FindPythonInterp (\`#355 <https://github.com/ament/ament_cmake/issues/355>\`_)
+* Update maintainers (\`#336 <https://github.com/ament/ament_cmake/issues/336>\`_)
+* Contributors: Chris Lalancette, Shane Loretz, serge-nikulin
+
+1.1.4 (2021-05-06)
+------------------
+
+1.1.3 (2021-03-09)
+------------------
+
+`;
+}
+
 Deno.test("get version from package.xml", () => {
   assertEquals(
     getPackageXmlVersion(getPackageXmlContent(VERSION_STRING)),
@@ -185,17 +287,79 @@ Deno.test("bump version", () => {
 });
 
 Deno.test("set version in package.xml", () => {
-  const bumpedVersion = bumpVersion(version, "patch");
-  assertEquals(
-    setPackageXmlVersion(getPackageXmlContent(VERSION_STRING), bumpedVersion),
-    getPackageXmlContent(getVersionString(bumpedVersion)),
-  );
+  for (const bumpType of ["patch", "minor", "major"]) {
+    const bumpedVersion = bumpVersion(version, bumpType as BumpType);
+    assertEquals(
+      setPackageXmlVersion(getPackageXmlContent(VERSION_STRING), bumpedVersion),
+      getPackageXmlContent(getVersionString(bumpedVersion)),
+    );
+  }
 });
 
 Deno.test("set version in setup.py", () => {
+  for (const bumpType of ["patch", "minor", "major"]) {
+    const bumpedVersion = bumpVersion(version, bumpType as BumpType);
+    assertEquals(
+      setSetupPyVersion(getSetupPyContent(VERSION_STRING), bumpedVersion),
+      getSetupPyContent(getVersionString(bumpedVersion)),
+    );
+  }
+});
+
+Deno.test("set version in changelog", () => {
+  for (const bumpType of ["patch", "minor", "major"]) {
+    const bumpedVersion = bumpVersion(version, bumpType as BumpType);
+    assertEquals(
+      setChangeLogVersion(getUnsetChangelogContent(), bumpedVersion),
+      getChangelogContent(getVersionString(bumpedVersion)),
+    );
+  }
+});
+
+Deno.test("throw on no match in package.xml", () => {
   const bumpedVersion = bumpVersion(version, "patch");
-  assertEquals(
-    setSetupPyVersion(getSetupPyContent(VERSION_STRING), bumpedVersion),
-    getSetupPyContent(getVersionString(bumpedVersion)),
-  );
+  const badTexts = [
+    getSetupPyContent(VERSION_STRING),
+    getSetupPyVariableSetContent(VERSION_STRING),
+    getUnsetChangelogContent(),
+    getChangelogContent(VERSION_STRING),
+    "not a package.xml file",
+  ];
+  for (const badText of badTexts) {
+    assertThrows(() => {
+      setPackageXmlVersion(badText, bumpedVersion);
+    });
+  }
+});
+
+Deno.test("throw on no match in setup.py", () => {
+  const bumpedVersion = bumpVersion(version, "patch");
+  const badTexts = [
+    getPackageXmlContent(VERSION_STRING),
+    getSetupPyVariableSetContent(VERSION_STRING),
+    getUnsetChangelogContent(),
+    getChangelogContent(VERSION_STRING),
+    "not a setup.py file",
+  ];
+  for (const badText of badTexts) {
+    assertThrows(() => {
+      setSetupPyVersion(badText, bumpedVersion);
+    });
+  }
+});
+
+Deno.test("throw on no match in changelog", () => {
+  const bumpedVersion = bumpVersion(version, "patch");
+  const badTexts = [
+    getPackageXmlContent(VERSION_STRING),
+    getSetupPyContent(VERSION_STRING),
+    getSetupPyVariableSetContent(VERSION_STRING),
+    getChangelogContent(VERSION_STRING),
+    "not a changelog file",
+  ];
+  for (const badText of badTexts) {
+    assertThrows(() => {
+      setChangeLogVersion(badText, bumpedVersion);
+    });
+  }
 });
