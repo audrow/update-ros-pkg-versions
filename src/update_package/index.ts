@@ -1,4 +1,5 @@
 import { BumpType, Version } from "./types.ts";
+import { format } from "../../deps.ts";
 
 export function getPackageXmlVersion(text: string) {
   const regex = /<version>(.*)<\/version>/;
@@ -32,8 +33,10 @@ export function setSetupPyVersion(text: string, version: Version) {
 export function setChangeLogVersion(text: string, version: Version) {
   const regex = /Forthcoming\n-----------/;
   if (text.match(regex)) {
-    const versionStr = getVersionString(version);
-    const replaceText = versionStr + "\n" + "-".repeat(versionStr.length);
+    const heading = `${getVersionString(version)} (${
+      format(new Date(), "yyyy-MM-dd")
+    })`;
+    const replaceText = heading + "\n" + "-".repeat(heading.length);
     return text.replace(regex, replaceText);
   } else {
     throw new Error(`Could not set version in the following text:\n\n${text}`);

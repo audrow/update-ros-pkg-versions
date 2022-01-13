@@ -9,6 +9,7 @@ import {
   setSetupPyVersion,
 } from "./index.ts";
 import { BumpType, Version } from "./types.ts";
+import { format } from "../../deps.ts";
 
 import { assertEquals, assertThrows } from "../../deps.test.ts";
 
@@ -173,8 +174,9 @@ Forthcoming
 `;
 }
 
-function getChangelogContent(version: string) {
-  const replacementText = version + "\n" + "-".repeat(version.length);
+function getChangelogContent(version: string, date: Date) {
+  const heading = `${version} (${format(date, "yyyy-MM-dd")})`;
+  const replacementText = heading + "\n" + "-".repeat(heading.length);
 
   return `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package ament_clang_format
@@ -311,7 +313,7 @@ Deno.test("set version in changelog", () => {
     const bumpedVersion = bumpVersion(version, bumpType as BumpType);
     assertEquals(
       setChangeLogVersion(getUnsetChangelogContent(), bumpedVersion),
-      getChangelogContent(getVersionString(bumpedVersion)),
+      getChangelogContent(getVersionString(bumpedVersion), new Date()),
     );
   }
 });
@@ -322,7 +324,7 @@ Deno.test("throw on no match in package.xml", () => {
     getSetupPyContent(VERSION_STRING),
     getSetupPyVariableSetContent(VERSION_STRING),
     getUnsetChangelogContent(),
-    getChangelogContent(VERSION_STRING),
+    getChangelogContent(VERSION_STRING, new Date()),
     "not a package.xml file",
   ];
   for (const badText of badTexts) {
@@ -338,7 +340,7 @@ Deno.test("throw on no match in setup.py", () => {
     getPackageXmlContent(VERSION_STRING),
     getSetupPyVariableSetContent(VERSION_STRING),
     getUnsetChangelogContent(),
-    getChangelogContent(VERSION_STRING),
+    getChangelogContent(VERSION_STRING, new Date()),
     "not a setup.py file",
   ];
   for (const badText of badTexts) {
@@ -354,7 +356,7 @@ Deno.test("throw on no match in changelog", () => {
     getPackageXmlContent(VERSION_STRING),
     getSetupPyContent(VERSION_STRING),
     getSetupPyVariableSetContent(VERSION_STRING),
-    getChangelogContent(VERSION_STRING),
+    getChangelogContent(VERSION_STRING, new Date()),
     "not a changelog file",
   ];
   for (const badText of badTexts) {
