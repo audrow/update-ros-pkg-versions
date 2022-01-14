@@ -5,6 +5,14 @@ A script for viewing, bumping, and setting package versions in `package.xml`,
 different versions between packages, and can create commits and tags for the new
 versions.
 
+- [Setup](#setup)
+- [Usage](#usage)
+  - [Available Commands](#available-commands)
+  - [Suggested Workflow](#suggested-workflow)
+    - [Bumping a ROS Repository's Version](#bumping-a-ros-repositorys-version)
+    - [Updating a Repository with Inconsistent Package Versions](#updating-a-repository-with-inconsistent-package-versions)
+- [Tests](#tests)
+
 ## Setup
 
 This project depends on [Deno](https://deno.land/). You can install Deno with
@@ -24,7 +32,7 @@ The easiest way to work with this script is to install it with Deno. To do this,
 clone this repository and run the following command:
 
 ```bash
-cd update-ros-pkg-versions
+cd update-ros-pkg-versions # enter this repository
 deno install --allow-read --allow-write --allow-run --name update-ros-pkg-versions src/index.ts
 # uninstall with
 # deno uninstall update-ros-pkg-versions
@@ -33,6 +41,8 @@ deno install --allow-read --allow-write --allow-run --name update-ros-pkg-versio
 Afterwards, you can run the script with `update-ros-pkg-versions`.
 
 ## Usage
+
+### Available Commands
 
 Use `-h` or `--h` to access help. From here you can see the available commands
 and their options. You can also use help with subcommands.
@@ -94,6 +104,73 @@ following command:
 ```bash
 $ update-ros-pkg-versions tag
 Done!
+```
+
+### Suggested Workflow
+
+#### Bumping a ROS Repository's Version
+
+1. Run `catkin_generate_changelog`
+2. Check and edit the changelog
+3. Bump the version, for example:
+
+   ```bash
+   update-ros-pkg-versions bump --type minor # patch is default
+   ```
+
+4. Create a commit and tag with
+
+   ```bash
+   $ update-ros-pkg-versions tag
+   ```
+
+5. Push the new tag and commit:
+
+   ```bash
+   git push --tags
+   ```
+
+Note that step 3 and 4 can be consolidated into the following command:
+
+```bash
+update-ros-pkg-versions bump --type minor --tag
+```
+
+#### Updating a Repository with Inconsistent Package Versions
+
+This may occur, for example, if a previous tag was made without updating the
+`setup.py` files.
+
+1. Run `catkin_generate_changelog`
+2. Check and edit the changelog
+3. Try to bump the version, but an error will occur. Use this error to get the
+   current versions used.
+   ```bash
+   $ update-ros-pkg-versions bump
+   error: Uncaught (in promise) Error: Version is not consistent - got the following versions: 0.11.2, 0.11.3
+   ```
+4. Set the version to the desired new version, for example:
+
+   ```bash
+   update-ros-pkg-versions set 0.11.4
+   ```
+
+5. Create a commit and tag with
+
+   ```bash
+   $ update-ros-pkg-versions tag
+   ```
+
+6. Push the new tag and commit:
+
+   ```bash
+   git push --tags
+   ```
+
+Note that step 4 and 5 can be consolidated into the following command:
+
+```bash
+update-ros-pkg-versions set 0.11.4 --tag
 ```
 
 ## Tests
