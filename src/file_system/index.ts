@@ -6,18 +6,22 @@ import {
   getSetupPyVersion,
   getVersionFromString,
   getVersionString,
+  isRos1File,
   setChangeLogVersion,
   setPackageXmlVersion,
   setSetupPyVersion,
 } from "../update_package/index.ts";
 import type { BumpType, Version } from "../update_package/types.ts";
 
-export async function getPathsToFiles(path: string, match: RegExp[]) {
+export async function getPathsToRos2Files(path: string, match: RegExp[]) {
   const paths: string[] = [];
   for await (
     const entry of walk(path, { match: match })
   ) {
-    paths.push(entry.path);
+    const fileText = await Deno.readTextFile(entry.path);
+    if (!isRos1File(fileText)) {
+      paths.push(entry.path);
+    }
   }
   return paths;
 }
@@ -74,7 +78,7 @@ export async function bumpFiles(
   const currentVersion = await getVersion(directory, isSkipSetupPy);
   const newVersion = bumpVersion(currentVersion, bumpType);
   for (
-    const file of await getFilePaths(directory, {
+    const file of await getRos2FilePaths(directory, {
       isIncludeChangeLog: true,
       isSkipSetupPy: isSkipSetupPy,
     })
@@ -93,7 +97,7 @@ export async function setFiles(
   isSkipSetupPy = false,
 ) {
   for (
-    const file of await getFilePaths(directory, {
+    const file of await getRos2FilePaths(directory, {
       isIncludeChangeLog: true,
       isSkipSetupPy: isSkipSetupPy,
     })
@@ -108,7 +112,7 @@ export async function getVersion(
 ): Promise<Version> {
   const versionSet = new Set<string>();
   for (
-    const file of await getFilePaths(directory, {
+    const file of await getRos2FilePaths(directory, {
       isIncludeChangeLog: false,
       isSkipSetupPy: isSkipSetupPy,
     })
@@ -131,7 +135,7 @@ export async function getVersion(
   return getVersionFromString(versionSet.values().next().value);
 }
 
-export async function getFilePaths(
+export async function getRos2FilePaths(
   directory: string,
   options: Partial<{
     isSkipSetupPy: boolean;
@@ -149,5 +153,5 @@ export async function getFilePaths(
   if (options.isIncludeChangeLog) {
     matches.push(/\/CHANGELOG.rst$/);
   }
-  return await getPathsToFiles(directory, matches);
+  return await getPathsToRos2Files(directory, matches);
 }

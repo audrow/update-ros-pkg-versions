@@ -1,10 +1,10 @@
 import {
   bumpFiles,
   bumpFileVersion,
-  getFilePaths,
   getFileVersion,
-  getPathsToFiles,
+  getPathsToRos2Files,
   getPathToFileDirectory,
+  getRos2FilePaths,
   getVersion,
   setFiles,
   setFileVersion,
@@ -50,7 +50,7 @@ function runTest(name: string, test: () => Promise<void>) {
 
 runTest("get files in folder", async () => {
   {
-    const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
+    const paths = await getPathsToRos2Files(TEST_PACKAGE_PATH, [
       /\/package.xml$/,
       /\/setup.py$/,
       /\/CHANGELOG.rst$/,
@@ -58,29 +58,29 @@ runTest("get files in folder", async () => {
     assertEquals(paths.length, 6);
   }
   {
-    const paths = await getFilePaths(TEST_PACKAGE_PATH, {});
+    const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {});
     assertEquals(paths.length, 5, "default");
   }
   {
-    const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+    const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {
       isIncludeChangeLog: true,
     });
     assertEquals(paths.length, 6, "includes changelog");
   }
   {
-    const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+    const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {
       isSkipPackageXml: true,
     });
     assertEquals(paths.length, 2, "skip package.xml");
   }
   {
-    const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+    const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {
       isSkipSetupPy: true,
     });
     assertEquals(paths.length, 3, "skip setup.py");
   }
   {
-    const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+    const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {
       isSkipSetupPy: true,
       isSkipPackageXml: true,
     });
@@ -89,7 +89,7 @@ runTest("get files in folder", async () => {
 });
 
 runTest("get all package versions", async () => {
-  const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
+  const paths = await getPathsToRos2Files(TEST_PACKAGE_PATH, [
     /\/package.xml$/,
     /\/setup.py$/,
   ]);
@@ -101,7 +101,7 @@ runTest("get all package versions", async () => {
 
 runTest("set all package versions", async () => {
   const newVersion = { major: 1, minor: 2, patch: 3 };
-  const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+  const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {
     isIncludeChangeLog: false,
   });
   for (const path of paths) {
@@ -112,7 +112,7 @@ runTest("set all package versions", async () => {
 });
 
 runTest("bump all package version - patch", async () => {
-  const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+  const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {
     isIncludeChangeLog: false,
   });
   for (const path of paths) {
@@ -123,7 +123,7 @@ runTest("bump all package version - patch", async () => {
 });
 
 runTest("bump all package version - minor", async () => {
-  const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+  const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {
     isIncludeChangeLog: false,
   });
   for (const path of paths) {
@@ -134,7 +134,7 @@ runTest("bump all package version - minor", async () => {
 });
 
 runTest("bump all package version - major", async () => {
-  const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+  const paths = await getRos2FilePaths(TEST_PACKAGE_PATH, {
     isIncludeChangeLog: false,
   });
   for (const path of paths) {

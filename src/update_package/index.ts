@@ -6,6 +6,11 @@ export function getPackageXmlVersion(text: string) {
   return getVersionFromRegexMatch(text, regex);
 }
 
+export function isRos1File(text: string) {
+  const regex = /catkin/;
+  return !!text.match(regex);
+}
+
 export function getSetupPyVersion(text: string) {
   const regex = /version='(.*)'/;
   return getVersionFromRegexMatch(text, regex);

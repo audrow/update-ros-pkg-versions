@@ -4,6 +4,7 @@ import {
   getSetupPyVersion,
   getVersionFromString,
   getVersionString,
+  isRos1File,
   setChangeLogVersion,
   setPackageXmlVersion,
   setSetupPyVersion,
@@ -11,7 +12,7 @@ import {
 import { BumpType, Version } from "./types.ts";
 import { format } from "../../deps.ts";
 
-import { assertEquals, assertThrows } from "../../deps.test.ts";
+import { assert, assertEquals, assertThrows } from "../../deps.test.ts";
 
 const VERSION_STRING = "1.2.3";
 const version: Version = {
@@ -49,6 +50,41 @@ function getPackageXmlContent(version: string) {
 
   <export>
     <build_type>ament_python</build_type>
+  </export>
+</package>`;
+}
+
+function getRos1PackageXml() {
+  return `<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>base_local_planner</name>
+  <version>1.17.1</version>
+  <description>
+    This package provides implementations of the Trajectory Rollout and Dynamic Window approaches to local robot navigation on a plane. Given a plan to follow and a costmap, the controller produces velocity commands to send to a mobile base. This package supports both holonomic and non-holonomic robots, any robot footprint that can be represented as a convex polygon or circle, and exposes its configuration as ROS parameters that can be set in a launch file. This package's ROS wrapper adheres to the BaseLocalPlanner interface specified in the <a href="http://wiki.ros.org/nav_core">nav_core</a> package. 
+  </description>
+  <author>Eitan Marder-Eppstein</author>
+  <author>Eric Perko</author>
+  <author>contradict@gmail.com</author>
+  <maintainer email="mfergs7@gmail.com">Michael Ferguson</maintainer>
+  <maintainer email="davidvlu@gmail.com">David V. Lu!!</maintainer>
+  <maintainer email="ahoy@fetchrobotics.com">Aaron Hoy</maintainer>
+  <license>BSD</license>
+  <url>http://wiki.ros.org/base_local_planner</url>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>cmake_modules</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>tf2_geometry_msgs</build_depend>
+
+  <depend>angles</depend>
+  <depend>costmap_2d</depend>
+  <exec_depend>message_runtime</exec_depend>
+
+  <test_depend>rosunit</test_depend>
+  <export>
+      <nav_core plugin="\${prefix}/blp_plugin.xml" />
   </export>
 </package>`;
 }
@@ -146,6 +182,19 @@ and generate xUnit test result files.""",
         ],
     },
 )`;
+}
+
+function getRos1SetupPy() {
+  return `#!/usr/bin/env python
+from distutils.core import setup
+from catkin_pkg.python_setup import generate_distutils_setup
+
+d = generate_distutils_setup(
+    packages = ['local_planner_limits'],
+    package_dir = {'': 'src'},
+    )
+
+setup(**d)`;
 }
 
 function getUnsetChangelogContent() {
@@ -364,4 +413,12 @@ Deno.test("throw on no match in changelog", () => {
       setChangeLogVersion(badText, bumpedVersion);
     });
   }
+});
+
+Deno.test("is ros 1 package.xml", () => {
+  assert(isRos1File(getRos1PackageXml()));
+  assert(!isRos1File(getPackageXmlContent(VERSION_STRING)));
+
+  assert(isRos1File(getRos1SetupPy()));
+  assert(!isRos1File(getSetupPyContent(VERSION_STRING)));
 });

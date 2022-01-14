@@ -1,9 +1,9 @@
 # README
 
-A script for viewing, bumping, and setting package versions in `package.xml`,
-`setup.py`, and `CHANGELOG.rst` files. It also tells you if your repo has
-different versions between packages and can create commits and tags for the new
-versions.
+A script for viewing, bumping, and setting package versions in ROS 2
+`package.xml`, `setup.py`, and `CHANGELOG.rst` files. It also tells you if your
+repo has different versions between packages and can create commits and tags for
+the new versions.
 
 - [Setup](#setup)
 - [Usage](#usage)
@@ -105,8 +105,11 @@ $ update-ros-pkg-versions tag
 Done!
 ```
 
-Also note that the commands have an `--skip-setup-py` option. This is useful
-when a package hasn't add a version tag to one or more `setup.py` files.
+Note that the commands have an `--skip-setup-py` option. This is useful when a
+package hasn't add a version tag to one or more `setup.py` files.
+
+Also, ROS 1 packages will be skipped. This program skips any files that mention
+`catkin`.
 
 ### Suggested Workflow
 
