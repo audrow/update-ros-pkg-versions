@@ -68,23 +68,60 @@ Deno.test("call bump with path", () => {
 });
 
 Deno.test("call bump with path", () => {
-  const cli = makeTestCli();
-  assert(!cli.bumpWatcher.isCalled());
-  cli.run(["bump", "--type", "minor"]);
-  assert(cli.bumpWatcher.isCalled());
-  assert(cli.bumpWatcher.callArgs()[0] === ".");
-  assert(cli.bumpWatcher.callArgs()[1] === "minor");
-  assert(!cli.setWatcher.isCalled());
+  {
+    const cli = makeTestCli();
+    assert(!cli.bumpWatcher.isCalled());
+    cli.run(["bump", "--type", "minor", "--stop-on-error", "--skip-setup-py"]);
+    assert(cli.bumpWatcher.isCalled());
+    assert(cli.bumpWatcher.callArgs()[0] === ".");
+    assert(cli.bumpWatcher.callArgs()[1] === "minor");
+    assert(cli.bumpWatcher.callArgs()[2] === true);
+    assert(cli.bumpWatcher.callArgs()[3] === true);
+    assert(!cli.setWatcher.isCalled());
+  }
+  {
+    const cli = makeTestCli();
+    assert(!cli.bumpWatcher.isCalled());
+    cli.run(["bump", "--type", "minor"]);
+    assert(cli.bumpWatcher.isCalled());
+    assert(cli.bumpWatcher.callArgs()[0] === ".");
+    assert(cli.bumpWatcher.callArgs()[1] === "minor");
+    assert(cli.bumpWatcher.callArgs()[2] === false);
+    assert(cli.bumpWatcher.callArgs()[3] === false);
+    assert(!cli.setWatcher.isCalled());
+  }
 });
 
 Deno.test("call set with path", () => {
-  const cli = makeTestCli();
-  assert(!cli.setWatcher.isCalled());
-  cli.run(["set", "--directory", "some/path", "1.2.3"]);
-  assert(cli.setWatcher.isCalled());
-  assert(cli.setWatcher.callArgs()[0] === "some/path");
-  assert(cli.setWatcher.callArgs()[1] === "1.2.3");
-  assert(!cli.bumpWatcher.isCalled());
+  {
+    const cli = makeTestCli();
+    assert(!cli.setWatcher.isCalled());
+    cli.run([
+      "set",
+      "--directory",
+      "some/path",
+      "1.2.3",
+      "--skip-setup-py",
+      "--stop-on-error",
+    ]);
+    assert(cli.setWatcher.isCalled());
+    assert(cli.setWatcher.callArgs()[0] === "some/path");
+    assert(cli.setWatcher.callArgs()[1] === "1.2.3");
+    assert(cli.setWatcher.callArgs()[2] === true);
+    assert(cli.setWatcher.callArgs()[3] === true);
+    assert(!cli.bumpWatcher.isCalled());
+  }
+  {
+    const cli = makeTestCli();
+    assert(!cli.setWatcher.isCalled());
+    cli.run(["set", "--directory", "some/path", "1.2.3"]);
+    assert(cli.setWatcher.isCalled());
+    assert(cli.setWatcher.callArgs()[0] === "some/path");
+    assert(cli.setWatcher.callArgs()[1] === "1.2.3");
+    assert(cli.setWatcher.callArgs()[2] === false);
+    assert(cli.setWatcher.callArgs()[3] === false);
+    assert(!cli.bumpWatcher.isCalled());
+  }
 });
 
 Deno.test("call get with path", () => {

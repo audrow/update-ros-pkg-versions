@@ -6,25 +6,49 @@ import {
   getVersionString,
 } from "./update_package/index.ts";
 import type { BumpFn, GetFn, SetFn, TagFn } from "./cli/index.ts";
+import type { Status } from "./file_system/types.ts";
 
-const bumpFn: BumpFn = async (path, bumpType, isSkipSetupPy) => {
-  await bumpFiles(path, bumpType, isSkipSetupPy);
-};
+function logFailures(statuses: Status[]) {
+  const errors = statuses.filter((status) => !status.isSuccess);
+  console.error("\nFiles that were not updated:\n");
+  for (const error of errors) {
+    console.error(`* ${error.file}: ${error.message}`);
+  }
+  console.error();
+}
 
-const setFn: SetFn = async (path, version, isSkipSetupPy) => {
-  await setFiles(path, getVersionFromString(version), isSkipSetupPy);
-};
-
-const getFn: GetFn = async (path, isSkipSetupPy) => {
-  console.log(
-    `Current Version: ${
-      getVersionString(await getVersion(path, isSkipSetupPy))
-    }`,
+const bumpFn: BumpFn = async (path, bumpType, isSkipSetupPy, isStopOnError) => {
+  const statuses = await bumpFiles(
+    path,
+    bumpType,
+    isSkipSetupPy,
+    isStopOnError,
   );
+  logFailures(statuses);
+};
+
+const setFn: SetFn = async (path, version, isSkipSetupPy, isStopOnError) => {
+  const statuses = await setFiles(
+    path,
+    getVersionFromString(version),
+    isSkipSetupPy,
+    isStopOnError,
+  );
+  logFailures(statuses);
+};
+
+const getFn: GetFn = async (path, isSkipSetupPy, isStopOnError) => {
+  const { version, statuses } = await getVersion(path, isSkipSetupPy, {
+    isStopOnError,
+  });
+  console.log(
+    `\nCurrent Version: ${getVersionString(version)}`,
+  );
+  logFailures(statuses);
 };
 
 const tagFn: TagFn = async (path, isSkipSetupPy) => {
-  const version = await getVersion(path, isSkipSetupPy);
+  const { version } = await getVersion(path, isSkipSetupPy);
   await commitAndTag(path, getVersionString(version));
 };
 

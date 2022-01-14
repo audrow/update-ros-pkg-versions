@@ -67,7 +67,12 @@ following:
 
 ```bash
 $ update-ros-pkg-versions get
-error: Uncaught (in promise) Error: Version is not consistent - got the following versions: 0.11.2, 0.11.3
+Current Version: 0.11.2
+
+Files that were not updated:
+
+* ros1_pkg/package.xml: Cannot set version for ROS 1 file: ros1_pkg/package.xml
+* ros1_pkg/setup.py: Cannot set version for ROS 1 file: ros1_pkg/setup.py
 ```
 
 If you have inconsistent versioning (of if you just know the version you want),

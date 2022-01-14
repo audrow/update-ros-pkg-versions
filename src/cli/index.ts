@@ -5,15 +5,18 @@ export type BumpFn = (
   path: string,
   bumpType: BumpType,
   isSkipSetupPy: boolean,
+  isStopOnError: boolean,
 ) => Promise<void>;
 export type SetFn = (
   path: string,
   version: string,
   isSkipSetupPy: boolean,
+  isStopOnError: boolean,
 ) => Promise<void>;
 export type GetFn = (
   path: string,
   isSkipSetupPy: boolean,
+  isStopOnError: boolean,
 ) => Promise<void>;
 export type TagFn = (
   path: string,
@@ -51,6 +54,9 @@ export function makeCli(args: {
     .option("--skip-setup-py", "Skip updating setup.py", {
       default: false,
     })
+    .option("--stop-on-error", "Stop on first error", {
+      default: false,
+    })
     .option("-t, --type <type>", "patch, minor, or major", {
       default: args.defaultBumpType,
     })
@@ -58,8 +64,8 @@ export function makeCli(args: {
       default: false,
     })
     .action(async (options) => {
-      const { directory, type, tag, skipSetupPy } = options;
-      await args.bumpFn(directory, type as BumpType, skipSetupPy);
+      const { directory, type, tag, skipSetupPy, stopOnError } = options;
+      await args.bumpFn(directory, type as BumpType, skipSetupPy, stopOnError);
       if (tag) {
         await args.tagFn(directory, skipSetupPy);
       }
@@ -74,9 +80,12 @@ export function makeCli(args: {
     .option("--skip-setup-py", "Skip updating setup.py", {
       default: false,
     })
+    .option("--stop-on-error", "Stop on first error", {
+      default: false,
+    })
     .action(async (options) => {
-      const { directory, skipSetupPy } = options;
-      await args.getFn!(directory, skipSetupPy);
+      const { directory, skipSetupPy, stopOnError } = options;
+      await args.getFn!(directory, skipSetupPy, stopOnError);
     });
 
   cli
@@ -87,12 +96,15 @@ export function makeCli(args: {
     .option("--skip-setup-py", "Skip updating setup.py", {
       default: false,
     })
+    .option("--stop-on-error", "Stop on first error", {
+      default: false,
+    })
     .option("--tag", "Commit and tag the new version", {
       default: false,
     })
     .action(async (version, options) => {
-      const { directory, tag, skipSetupPy } = options;
-      await args.setFn(directory, version, skipSetupPy);
+      const { directory, tag, skipSetupPy, stopOnError } = options;
+      await args.setFn(directory, version, skipSetupPy, stopOnError);
       if (tag) {
         await args.tagFn(directory, skipSetupPy);
       }
