@@ -4,6 +4,7 @@ import { BumpType } from "../update_package/types.ts";
 export type BumpFn = (path: string, bumpType: BumpType) => Promise<void>;
 export type SetFn = (path: string, version: string) => Promise<void>;
 export type GetFn = (path: string) => Promise<void>;
+export type TagFn = (path: string) => Promise<void>;
 
 export function makeCli(args: {
   name?: string;
@@ -12,6 +13,7 @@ export function makeCli(args: {
   bumpFn: BumpFn;
   setFn: SetFn;
   getFn: GetFn;
+  tagFn: TagFn;
 }) {
   if (!args.name) {
     args.name = "update-ros-pkg-versions";
@@ -32,12 +34,28 @@ export function makeCli(args: {
     .option("-t, --type <type>", "patch, minor, or major", {
       default: args.defaultBumpType,
     })
+    .option("--tag", "Commit and tag the new version", {
+      default: false,
+    })
     .option("-d, --directory <directory>", "Directory to update", {
       default: ".",
     })
     .action(async (options) => {
-      const { directory, type } = options;
+      const { directory, type, tag } = options;
       await args.bumpFn(directory, type as BumpType);
+      if (tag) {
+        await args.tagFn(directory);
+      }
+    });
+
+  cli
+    .command("tag", "Tag a package version")
+    .option("-d, --directory <directory>", "Directory to update", {
+      default: ".",
+    })
+    .action(async (options) => {
+      const { directory } = options;
+      await args.tagFn(directory);
     });
 
   cli

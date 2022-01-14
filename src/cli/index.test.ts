@@ -23,11 +23,28 @@ function makeTestCli() {
   const { fn: bumpFn, watcher: bumpWatcher } = mockFnMaker();
   const { fn: setFn, watcher: setWatcher } = mockFnMaker();
   const { fn: getFn, watcher: getWatcher } = mockFnMaker();
-  const cli = makeCli({ bumpFn, setFn, getFn, defaultBumpType: "patch" });
+  const { fn: tagFn, watcher: tagWatcher } = mockFnMaker();
+  const cli = makeCli({
+    bumpFn,
+    setFn,
+    getFn,
+    tagFn,
+    defaultBumpType: "patch",
+  });
   const run = (args: string[]) => {
     return cli.parse(["", "", ...args], { run: true });
   };
-  return { run, bumpFn, setFn, getFn, bumpWatcher, setWatcher, getWatcher };
+  return {
+    run,
+    bumpFn,
+    setFn,
+    getFn,
+    tagFn,
+    bumpWatcher,
+    setWatcher,
+    getWatcher,
+    tagWatcher,
+  };
 }
 
 Deno.test("call bump without args", () => {
@@ -76,5 +93,14 @@ Deno.test("call get with path", () => {
   cli.run(["get", "--directory", "some/path"]);
   assert(cli.getWatcher.isCalled());
   assert(cli.getWatcher.callArgs()[0] === "some/path");
+  assert(!cli.bumpWatcher.isCalled());
+});
+
+Deno.test("call tag with path", () => {
+  const cli = makeTestCli();
+  assert(!cli.tagWatcher.isCalled());
+  cli.run(["tag", "--directory", "some/path"]);
+  assert(cli.tagWatcher.isCalled());
+  assert(cli.tagWatcher.callArgs()[0] === "some/path");
   assert(!cli.bumpWatcher.isCalled());
 });
