@@ -33,7 +33,7 @@ clone this repository and run the following command:
 
 ```bash
 cd update-ros-pkg-versions # enter this repository
-deno install --allow-read --allow-write --allow-run --name update-ros-pkg-versions src/index.ts
+deno install --lock lock.json --allow-read --allow-write --allow-run --name update-ros-pkg-versions src/index.ts
 # uninstall with
 # deno uninstall update-ros-pkg-versions
 ```
