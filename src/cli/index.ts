@@ -46,6 +46,7 @@ export function makeCli(args: {
       if (tag) {
         await args.tagFn(directory);
       }
+      console.log(`Done!`);
     });
 
   cli
@@ -56,6 +57,7 @@ export function makeCli(args: {
     .action(async (options) => {
       const { directory } = options;
       await args.tagFn(directory);
+      console.log(`Done!`);
     });
 
   cli
@@ -63,9 +65,16 @@ export function makeCli(args: {
     .option("-d, --directory <directory>", "Directory to update", {
       default: ".",
     })
+    .option("--tag", "Commit and tag the new version", {
+      default: false,
+    })
     .action(async (version, options) => {
-      const { directory } = options;
+      const { directory, tag } = options;
       await args.setFn(directory, version);
+      if (tag) {
+        await args.tagFn(directory);
+      }
+      console.log(`Done!`);
     });
 
   cli

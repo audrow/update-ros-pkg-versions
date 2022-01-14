@@ -9,12 +9,10 @@ import type { BumpFn, GetFn, SetFn, TagFn } from "./cli/index.ts";
 
 const bumpFn: BumpFn = async (path, bumpType) => {
   await bumpFiles(path, bumpType);
-  console.log(`Done!`);
 };
 
 const setFn: SetFn = async (path, version) => {
   await setFiles(path, getVersionFromString(version));
-  console.log(`Done!`);
 };
 
 const getFn: GetFn = async (path) => {
@@ -24,7 +22,6 @@ const getFn: GetFn = async (path) => {
 const tagFn: TagFn = async (path) => {
   const version = await getVersion(path);
   await commitAndTag(path, getVersionString(version));
-  console.log(`Done!`);
 };
 
 const cli = makeCli({

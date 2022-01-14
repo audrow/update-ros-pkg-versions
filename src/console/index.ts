@@ -11,7 +11,7 @@ export async function commitAndTag(cwd: string, version: string) {
 }
 
 async function runCommand(args: { cwd: string; cmd: string[]; error: string }) {
-  const p = Deno.run({ cmd: args.cmd, cwd: args.cwd });
+  const p = Deno.run({ cmd: args.cmd, cwd: args.cwd, stdout: "null" });
   const status = await p.status();
   if (!status.success) {
     throw new Error(args.error);
