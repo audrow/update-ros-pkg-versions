@@ -1,6 +1,6 @@
 import { makeCli } from "./index.ts";
 
-import { assert } from "../../deps.test.ts";
+import { assert, assertEquals } from "../../deps.test.ts";
 
 function mockFnMaker() {
   let isCalled = false;
@@ -52,8 +52,8 @@ Deno.test("call bump without args", () => {
   assert(!cli.bumpWatcher.isCalled());
   cli.run(["bump"]);
   assert(cli.bumpWatcher.isCalled());
-  assert(cli.bumpWatcher.callArgs()[0] === ".");
-  assert(cli.bumpWatcher.callArgs()[1] === "patch");
+  assertEquals(cli.bumpWatcher.callArgs()[0], Deno.cwd());
+  assertEquals(cli.bumpWatcher.callArgs()[1], "patch");
   assert(!cli.setWatcher.isCalled());
 });
 
@@ -62,21 +62,21 @@ Deno.test("call bump with path", () => {
   assert(!cli.bumpWatcher.isCalled());
   cli.run(["bump", "--directory", "some/path"]);
   assert(cli.bumpWatcher.isCalled());
-  assert(cli.bumpWatcher.callArgs()[0] === "some/path");
-  assert(cli.bumpWatcher.callArgs()[1] === "patch");
+  assertEquals(cli.bumpWatcher.callArgs()[0], "some/path");
+  assertEquals(cli.bumpWatcher.callArgs()[1], "patch");
   assert(!cli.setWatcher.isCalled());
 });
 
-Deno.test("call bump with path", () => {
+Deno.test("call bump with options", () => {
   {
     const cli = makeTestCli();
     assert(!cli.bumpWatcher.isCalled());
     cli.run(["bump", "--type", "minor", "--stop-on-error", "--skip-setup-py"]);
     assert(cli.bumpWatcher.isCalled());
-    assert(cli.bumpWatcher.callArgs()[0] === ".");
-    assert(cli.bumpWatcher.callArgs()[1] === "minor");
-    assert(cli.bumpWatcher.callArgs()[2] === true);
-    assert(cli.bumpWatcher.callArgs()[3] === true);
+    assertEquals(cli.bumpWatcher.callArgs()[0], Deno.cwd());
+    assertEquals(cli.bumpWatcher.callArgs()[1], "minor");
+    assertEquals(cli.bumpWatcher.callArgs()[2], true);
+    assertEquals(cli.bumpWatcher.callArgs()[3], true);
     assert(!cli.setWatcher.isCalled());
   }
   {
@@ -84,10 +84,10 @@ Deno.test("call bump with path", () => {
     assert(!cli.bumpWatcher.isCalled());
     cli.run(["bump", "--type", "minor"]);
     assert(cli.bumpWatcher.isCalled());
-    assert(cli.bumpWatcher.callArgs()[0] === ".");
-    assert(cli.bumpWatcher.callArgs()[1] === "minor");
-    assert(cli.bumpWatcher.callArgs()[2] === false);
-    assert(cli.bumpWatcher.callArgs()[3] === false);
+    assertEquals(cli.bumpWatcher.callArgs()[0], Deno.cwd());
+    assertEquals(cli.bumpWatcher.callArgs()[1], "minor");
+    assertEquals(cli.bumpWatcher.callArgs()[2], false);
+    assertEquals(cli.bumpWatcher.callArgs()[3], false);
     assert(!cli.setWatcher.isCalled());
   }
 });

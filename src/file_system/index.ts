@@ -137,6 +137,7 @@ export async function getVersion(
       isSkipSetupPy,
     })
   ) {
+    console.log(file);
     let version: Version;
     try {
       version = await getFileVersion(file);
@@ -151,7 +152,7 @@ export async function getVersion(
     }
   }
   if (versionSet.size < 1) {
-    throw new Error(`No version found in ${directory}`);
+    throw new Error(`No version found in '${directory}'`);
   } else if (versionSet.size > 1) {
     throw new Error(
       `Version is not consistent - got the following versions: ${

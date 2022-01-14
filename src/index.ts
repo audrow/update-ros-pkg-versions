@@ -10,11 +10,13 @@ import type { Status } from "./file_system/types.ts";
 
 function logFailures(statuses: Status[]) {
   const errors = statuses.filter((status) => !status.isSuccess);
-  console.error("\nFiles that were not updated:\n");
-  for (const error of errors) {
-    console.error(`* ${error.file}: ${error.message}`);
+  if (errors.length > 0) {
+    console.error("\nFiles that were not updated:\n");
+    for (const error of errors) {
+      console.error(`* ${error.file}: ${error.message}`);
+    }
+    console.error();
   }
-  console.error();
 }
 
 const bumpFn: BumpFn = async (path, bumpType, isSkipSetupPy, isStopOnError) => {

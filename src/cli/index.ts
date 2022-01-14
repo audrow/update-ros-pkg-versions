@@ -45,11 +45,12 @@ export function makeCli(args: {
   const cli = cac(args.name);
   cli.help(); // show help when --help or -h is passed
   cli.version(args.version);
+  const defaultDir = Deno.cwd();
 
   cli
     .command("bump", "Update package versions in a directory")
     .option("-d, --directory <directory>", "Directory to update", {
-      default: ".",
+      default: defaultDir,
     })
     .option("--skip-setup-py", "Skip updating setup.py", {
       default: false,
@@ -75,7 +76,7 @@ export function makeCli(args: {
   cli
     .command("get", "Get package versions in a directory")
     .option("-d, --directory <directory>", "Directory to update", {
-      default: ".",
+      default: defaultDir,
     })
     .option("--skip-setup-py", "Skip updating setup.py", {
       default: false,
@@ -91,7 +92,7 @@ export function makeCli(args: {
   cli
     .command("set <version>", "Set package versions in a directory")
     .option("-d, --directory <directory>", "Directory to update", {
-      default: ".",
+      default: defaultDir,
     })
     .option("--skip-setup-py", "Skip updating setup.py", {
       default: false,
