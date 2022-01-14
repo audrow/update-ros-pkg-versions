@@ -2,7 +2,8 @@
 
 A script for viewing, bumping, and setting package versions in `package.xml`,
 `setup.py`, and `CHANGELOG.rst` files. It also tells you if your repo has
-different versions between packages.
+different versions between packages, and can create commits and tags for the new
+versions.
 
 ## Setup
 
@@ -24,7 +25,7 @@ clone this repository and run the following command:
 
 ```bash
 cd update-ros-pkg-versions
-deno install --allow-read --allow-write --name update-ros-pkg-versions src/index.ts
+deno install --allow-read --allow-write --allow-run --name update-ros-pkg-versions src/index.ts
 # uninstall with
 # deno uninstall update-ros-pkg-versions
 ```
@@ -70,13 +71,29 @@ $ update-ros-pkg-versions get
 Current Version: 1.2.3
 ```
 
-Otherwise, you can bump the version:
+Note that you can use `--tag` to commit and tag the repo after making a bump.
+
+```bash
+$ update-ros-pkg-versions set 1.2.3 --tag
+Done!
+```
+
+Otherwise, you can bump the version (note, `--tag` is also an option here):
 
 ```bash
 $ update-ros-pkg-versions bump --type minor # patch is default
 Done!
 $ update-ros-pkg-versions get
 update-ros-pkg-versions get Current Version: 0.12.0
+```
+
+If you've updated the version and would like to create a commit and tag (and you
+didn't do it from `set` or `bump` with the `--tag` flag), you can run the
+following command:
+
+```bash
+$ update-ros-pkg-versions tag
+Done!
 ```
 
 ## Tests
