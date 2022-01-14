@@ -43,7 +43,7 @@ Afterwards, you can run the script with `update-ros-pkg-versions`.
 
 ### Available Commands
 
-Use `-h` or `--h` to access help. From here you can see the available commands
+Use `-h` or `--help` to access help. From here you can see the available commands
 and their options. You can also use help with subcommands.
 
 ```
