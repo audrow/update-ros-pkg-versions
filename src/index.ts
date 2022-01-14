@@ -7,16 +7,16 @@ import {
 } from "./update_package/index.ts";
 import type { BumpFn, GetFn, SetFn, TagFn } from "./cli/index.ts";
 
-const bumpFn: BumpFn = async (path, bumpType) => {
-  await bumpFiles(path, bumpType);
+const bumpFn: BumpFn = async (path, bumpType, isSkipSetupPy) => {
+  await bumpFiles(path, bumpType, isSkipSetupPy);
 };
 
-const setFn: SetFn = async (path, version) => {
-  await setFiles(path, getVersionFromString(version));
+const setFn: SetFn = async (path, version, isSkipSetupPy) => {
+  await setFiles(path, getVersionFromString(version), isSkipSetupPy);
 };
 
-const getFn: GetFn = async (path) => {
-  console.log(`Current Version: ${getVersionString(await getVersion(path))}`);
+const getFn: GetFn = async (path, isSkipSetupPy) => {
+  console.log(`Current Version: ${getVersionString(await getVersion(path, isSkipSetupPy))}`);
 };
 
 const tagFn: TagFn = async (path) => {

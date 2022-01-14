@@ -139,7 +139,7 @@ runTest("throw for package with different versions", async () => {
 });
 
 runTest("bump package version all packages at once - minor", async () => {
-  await bumpFiles(TEST_PACKAGE_PATH, "minor");
+  await bumpFiles(TEST_PACKAGE_PATH, "minor", false);
   const version = await getVersion(TEST_PACKAGE_PATH);
   assertEquals(getVersionString(version), "0.12.0");
 });

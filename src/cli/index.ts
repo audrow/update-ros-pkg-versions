@@ -1,9 +1,20 @@
 import { cac } from "../../deps.ts";
 import { BumpType } from "../update_package/types.ts";
 
-export type BumpFn = (path: string, bumpType: BumpType) => Promise<void>;
-export type SetFn = (path: string, version: string) => Promise<void>;
-export type GetFn = (path: string) => Promise<void>;
+export type BumpFn = (
+  path: string,
+  bumpType: BumpType,
+  isSkipSetupPy: boolean,
+) => Promise<void>;
+export type SetFn = (
+  path: string,
+  version: string,
+  isSkipSetupPy: boolean,
+) => Promise<void>;
+export type GetFn = (
+  path: string,
+  isSkipSetupPy: boolean,
+) => Promise<void>;
 export type TagFn = (path: string) => Promise<void>;
 
 export function makeCli(args: {
@@ -31,18 +42,21 @@ export function makeCli(args: {
 
   cli
     .command("bump", "Update package versions in a directory")
+    .option("-d, --directory <directory>", "Directory to update", {
+      default: ".",
+    })
+    .option("--skip-setup-py", "Skip updating setup.py", {
+      default: false,
+    })
     .option("-t, --type <type>", "patch, minor, or major", {
       default: args.defaultBumpType,
     })
     .option("--tag", "Commit and tag the new version", {
       default: false,
     })
-    .option("-d, --directory <directory>", "Directory to update", {
-      default: ".",
-    })
     .action(async (options) => {
-      const { directory, type, tag } = options;
-      await args.bumpFn(directory, type as BumpType);
+      const { directory, type, tag, skipSetupPy } = options;
+      await args.bumpFn(directory, type as BumpType, skipSetupPy);
       if (tag) {
         await args.tagFn(directory);
       }
@@ -65,12 +79,15 @@ export function makeCli(args: {
     .option("-d, --directory <directory>", "Directory to update", {
       default: ".",
     })
+    .option("--skip-setup-py", "Skip updating setup.py", {
+      default: false,
+    })
     .option("--tag", "Commit and tag the new version", {
       default: false,
     })
     .action(async (version, options) => {
-      const { directory, tag } = options;
-      await args.setFn(directory, version);
+      const { directory, tag, skipSetupPy } = options;
+      await args.setFn(directory, version, skipSetupPy);
       if (tag) {
         await args.tagFn(directory);
       }
@@ -82,9 +99,12 @@ export function makeCli(args: {
     .option("-d, --directory <directory>", "Directory to update", {
       default: ".",
     })
+    .option("--skip-setup-py", "Skip updating setup.py", {
+      default: false,
+    })
     .action(async (options) => {
-      const { directory } = options;
-      await args.getFn!(directory);
+      const { directory, skipSetupPy } = options;
+      await args.getFn!(directory, skipSetupPy);
     });
 
   return cli;

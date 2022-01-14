@@ -64,11 +64,18 @@ export async function bumpFileVersion(path: string, bumpType: BumpType) {
   }
 }
 
-export async function bumpFiles(directory: string, bumpType: BumpType) {
-  const currentVersion = await getVersion(directory);
+export async function bumpFiles(
+  directory: string,
+  bumpType: BumpType,
+  isSkipSetupPy = false,
+) {
+  const currentVersion = await getVersion(directory, isSkipSetupPy);
   const newVersion = bumpVersion(currentVersion, bumpType);
   for (
-    const file of await getFilePaths(directory, { isIncludeChangeLog: true })
+    const file of await getFilePaths(directory, {
+      isIncludeChangeLog: true,
+      isSkipSetupPy: isSkipSetupPy,
+    })
   ) {
     try {
       await setFileVersion(file, newVersion);
@@ -78,18 +85,31 @@ export async function bumpFiles(directory: string, bumpType: BumpType) {
   }
 }
 
-export async function setFiles(directory: string, version: Version) {
+export async function setFiles(
+  directory: string,
+  version: Version,
+  isSkipSetupPy = false,
+) {
   for (
-    const file of await getFilePaths(directory, { isIncludeChangeLog: true })
+    const file of await getFilePaths(directory, {
+      isIncludeChangeLog: true,
+      isSkipSetupPy: isSkipSetupPy,
+    })
   ) {
     await setFileVersion(file, version);
   }
 }
 
-export async function getVersion(directory: string): Promise<Version> {
+export async function getVersion(
+  directory: string,
+  isSkipSetupPy = false,
+): Promise<Version> {
   const versionSet = new Set<string>();
   for (
-    const file of await getFilePaths(directory, { isIncludeChangeLog: false })
+    const file of await getFilePaths(directory, {
+      isIncludeChangeLog: false,
+      isSkipSetupPy: isSkipSetupPy,
+    })
   ) {
     let version: Version;
     try {
@@ -111,13 +131,20 @@ export async function getVersion(directory: string): Promise<Version> {
 
 export async function getFilePaths(
   directory: string,
-  options?: { isIncludeChangeLog: boolean },
+  options: Partial<{
+    isSkipSetupPy: boolean;
+    isSkipPackageXml: boolean;
+    isIncludeChangeLog: boolean;
+  }>,
 ) {
-  const matches = [
-    /package.xml$/,
-    /setup.py$/,
-  ];
-  if (options?.isIncludeChangeLog) {
+  const matches: RegExp[] = [];
+  if (!options.isSkipPackageXml) {
+    matches.push(/package.xml$/);
+  }
+  if (!options.isSkipSetupPy) {
+    matches.push(/setup.py$/);
+  }
+  if (options.isIncludeChangeLog) {
     matches.push(/CHANGELOG.rst$/);
   }
   return await getPathsToFiles(directory, matches);
