@@ -57,7 +57,11 @@ export async function setFileVersion(path: string, version: Version) {
 export async function bumpFileVersion(path: string, bumpType: BumpType) {
   const currentVersion = await getFileVersion(path);
   const newVersion = bumpVersion(currentVersion, bumpType);
-  await setFileVersion(path, newVersion);
+  try {
+    await setFileVersion(path, newVersion);
+  } catch (error) {
+    throw new Error(`Failed to set version for ${path}: ${error}`);
+  }
 }
 
 export async function bumpFiles(directory: string, bumpType: BumpType) {
@@ -66,7 +70,11 @@ export async function bumpFiles(directory: string, bumpType: BumpType) {
   for (
     const file of await getFilePaths(directory, { isIncludeChangeLog: true })
   ) {
-    await setFileVersion(file, newVersion);
+    try {
+      await setFileVersion(file, newVersion);
+    } catch (error) {
+      throw new Error(`Failed to set version for ${file}: ${error}`);
+    }
   }
 }
 
@@ -83,7 +91,13 @@ export async function getVersion(directory: string): Promise<Version> {
   for (
     const file of await getFilePaths(directory, { isIncludeChangeLog: false })
   ) {
-    versionSet.add(getVersionString(await getFileVersion(file)));
+    let version: Version;
+    try {
+      version = await getFileVersion(file);
+    } catch (error) {
+      throw new Error(`Failed to get version for ${file}: ${error}`);
+    }
+    versionSet.add(getVersionString(version));
   }
   if (versionSet.size !== 1) {
     throw new Error(
