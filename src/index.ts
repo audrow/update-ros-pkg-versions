@@ -23,8 +23,8 @@ const getFn: GetFn = async (path, isSkipSetupPy) => {
   );
 };
 
-const tagFn: TagFn = async (path) => {
-  const version = await getVersion(path);
+const tagFn: TagFn = async (path, isSkipSetupPy) => {
+  const version = await getVersion(path, isSkipSetupPy);
   await commitAndTag(path, getVersionString(version));
 };
 

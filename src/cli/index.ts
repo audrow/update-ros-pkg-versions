@@ -15,7 +15,10 @@ export type GetFn = (
   path: string,
   isSkipSetupPy: boolean,
 ) => Promise<void>;
-export type TagFn = (path: string) => Promise<void>;
+export type TagFn = (
+  path: string,
+  isSkipSetupPy: boolean,
+) => Promise<void>;
 
 export function makeCli(args: {
   name?: string;
@@ -58,20 +61,22 @@ export function makeCli(args: {
       const { directory, type, tag, skipSetupPy } = options;
       await args.bumpFn(directory, type as BumpType, skipSetupPy);
       if (tag) {
-        await args.tagFn(directory);
+        await args.tagFn(directory, skipSetupPy);
       }
       console.log(`Done!`);
     });
 
   cli
-    .command("tag", "Tag a package version")
+    .command("get", "Get package versions in a directory")
     .option("-d, --directory <directory>", "Directory to update", {
       default: ".",
     })
+    .option("--skip-setup-py", "Skip updating setup.py", {
+      default: false,
+    })
     .action(async (options) => {
-      const { directory } = options;
-      await args.tagFn(directory);
-      console.log(`Done!`);
+      const { directory, skipSetupPy } = options;
+      await args.getFn!(directory, skipSetupPy);
     });
 
   cli
@@ -89,13 +94,13 @@ export function makeCli(args: {
       const { directory, tag, skipSetupPy } = options;
       await args.setFn(directory, version, skipSetupPy);
       if (tag) {
-        await args.tagFn(directory);
+        await args.tagFn(directory, skipSetupPy);
       }
       console.log(`Done!`);
     });
 
   cli
-    .command("get", "Get package versions in a directory")
+    .command("tag", "Tag a package version")
     .option("-d, --directory <directory>", "Directory to update", {
       default: ".",
     })
@@ -104,7 +109,8 @@ export function makeCli(args: {
     })
     .action(async (options) => {
       const { directory, skipSetupPy } = options;
-      await args.getFn!(directory, skipSetupPy);
+      await args.tagFn(directory, skipSetupPy);
+      console.log(`Done!`);
     });
 
   return cli;
