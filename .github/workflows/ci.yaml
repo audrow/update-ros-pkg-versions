@@ -16,19 +16,9 @@ jobs:
         run: |-
           curl -fsSL https://deno.land/install.sh | sh
           echo "$HOME/.deno/bin" >> $GITHUB_PATH
+      - name: Run linter
+        run: make lint
+      - name: Check formatting
+        run: make fmt-check
       - name: Run tests
         run: make test
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-      - name: Install Deno
-        run: |-
-          curl -fsSL https://deno.land/install.sh | sh
-          echo "$HOME/.deno/bin" >> $GITHUB_PATH
-      - name: Format
-        run: make fmt-check
-      - name: Lint
-        run: make lint
