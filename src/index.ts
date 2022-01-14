@@ -16,7 +16,11 @@ const setFn: SetFn = async (path, version, isSkipSetupPy) => {
 };
 
 const getFn: GetFn = async (path, isSkipSetupPy) => {
-  console.log(`Current Version: ${getVersionString(await getVersion(path, isSkipSetupPy))}`);
+  console.log(
+    `Current Version: ${
+      getVersionString(await getVersion(path, isSkipSetupPy))
+    }`,
+  );
 };
 
 const tagFn: TagFn = async (path) => {
