@@ -2,7 +2,7 @@
 
 A script for viewing, bumping, and setting package versions in `package.xml`,
 `setup.py`, and `CHANGELOG.rst` files. It also tells you if your repo has
-different versions between packages, and can create commits and tags for the new
+different versions between packages and can create commits and tags for the new
 versions.
 
 - [Setup](#setup)
