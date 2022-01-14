@@ -32,11 +32,10 @@ The easiest way to work with this script is to install it with Deno. To do this,
 clone this repository and run the following command:
 
 ```bash
-cd update-ros-pkg-versions # enter this repository
-deno install --lock lock.json --allow-read --allow-write --allow-run --name update-ros-pkg-versions src/index.ts
-# uninstall with
-# deno uninstall update-ros-pkg-versions
+make install
 ```
+
+You can use `make uninstall` to uninstall this script.
 
 Afterwards, you can run the script with `update-ros-pkg-versions`.
 
@@ -105,6 +104,9 @@ following command:
 $ update-ros-pkg-versions tag
 Done!
 ```
+
+Also note that the commands have an `--skip-setup-py` option. This is useful
+when a package hasn't add a version tag to one or more `setup.py` files.
 
 ### Suggested Workflow
 
@@ -178,6 +180,5 @@ update-ros-pkg-versions set 0.11.4 --tag
 You can test this program with the following command:
 
 ```bash
-cd update-ros-pkg-versions
-deno test --allow-read --allow-write --unstable
+make test # or make test-all to run the tests, linter, and formatter
 ```
