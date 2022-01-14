@@ -115,7 +115,7 @@ export function makeCli(args: {
   cli
     .command("tag", "Tag a package version")
     .option("-d, --directory <directory>", "Directory to update", {
-      default: ".",
+      default: defaultDir,
     })
     .option("--skip-setup-py", "Skip updating setup.py", {
       default: false,
