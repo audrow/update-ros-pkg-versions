@@ -1,4 +1,4 @@
-import { dirname, walk } from "../../deps.ts";
+import { basename, dirname, walk } from "../../deps.ts";
 
 import {
   bumpVersion,
@@ -28,11 +28,12 @@ export function getPathToFileDirectory() {
 
 export async function getFileVersion(path: string) {
   const fileText = await Deno.readTextFile(path);
-  if (path.endsWith("package.xml")) {
+  const fileName = basename(path);
+  if (fileName === "package.xml") {
     return getPackageXmlVersion(fileText);
-  } else if (path.endsWith("setup.py")) {
+  } else if (fileName === "setup.py") {
     return getSetupPyVersion(fileText);
-  } else if (path.endsWith("CHANGELOG.rst")) {
+  } else if (fileName === "CHANGELOG.rst") {
     throw new Error(`Cannot get version from CHANGELOG.rst: ${path}`);
   } else {
     throw new Error(`Unknown file type: ${path}`);
@@ -41,12 +42,13 @@ export async function getFileVersion(path: string) {
 
 export async function setFileVersion(path: string, version: Version) {
   const fileText = await Deno.readTextFile(path);
+  const fileName = basename(path);
   let newFileText;
-  if (path.endsWith("package.xml")) {
+  if (fileName === "package.xml") {
     newFileText = setPackageXmlVersion(fileText, version);
-  } else if (path.endsWith("setup.py")) {
+  } else if (fileName === "setup.py") {
     newFileText = setSetupPyVersion(fileText, version);
-  } else if (path.endsWith("CHANGELOG.rst")) {
+  } else if (fileName === "CHANGELOG.rst") {
     newFileText = setChangeLogVersion(fileText, version);
   } else {
     throw new Error(`Unknown file type: ${path}`);
@@ -139,13 +141,13 @@ export async function getFilePaths(
 ) {
   const matches: RegExp[] = [];
   if (!options.isSkipPackageXml) {
-    matches.push(/package.xml$/);
+    matches.push(/\/package.xml$/);
   }
   if (!options.isSkipSetupPy) {
-    matches.push(/setup.py$/);
+    matches.push(/\/setup.py$/);
   }
   if (options.isIncludeChangeLog) {
-    matches.push(/CHANGELOG.rst$/);
+    matches.push(/\/CHANGELOG.rst$/);
   }
   return await getPathsToFiles(directory, matches);
 }
