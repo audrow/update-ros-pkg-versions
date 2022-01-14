@@ -1,6 +1,7 @@
 import {
   bumpFiles,
   bumpFileVersion,
+  getFilePaths,
   getFileVersion,
   getPathsToFiles,
   getPathToFileDirectory,
@@ -48,18 +49,49 @@ function runTest(name: string, test: () => Promise<void>) {
 }
 
 runTest("get files in folder", async () => {
-  const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
-    /package.xml$/,
-    /setup.py$/,
-    /CHANGELOG.rst$/,
-  ]);
-  assertEquals(paths.length, 6);
+  {
+    const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
+      /\/package.xml$/,
+      /\/setup.py$/,
+      /\/CHANGELOG.rst$/,
+    ]);
+    assertEquals(paths.length, 6);
+  }
+  {
+    const paths = await getFilePaths(TEST_PACKAGE_PATH, {});
+    assertEquals(paths.length, 5, "default");
+  }
+  {
+    const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+      isIncludeChangeLog: true,
+    });
+    assertEquals(paths.length, 6, "includes changelog");
+  }
+  {
+    const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+      isSkipPackageXml: true,
+    });
+    assertEquals(paths.length, 2, "skip package.xml");
+  }
+  {
+    const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+      isSkipSetupPy: true,
+    });
+    assertEquals(paths.length, 3, "skip setup.py");
+  }
+  {
+    const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+      isSkipSetupPy: true,
+      isSkipPackageXml: true,
+    });
+    assertEquals(paths.length, 0, "skips everything");
+  }
 });
 
 runTest("get all package versions", async () => {
   const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
-    /package.xml$/,
-    /setup.py$/,
+    /\/package.xml$/,
+    /\/setup.py$/,
   ]);
   for (const path of paths) {
     const version = await getFileVersion(path);
@@ -69,10 +101,9 @@ runTest("get all package versions", async () => {
 
 runTest("set all package versions", async () => {
   const newVersion = { major: 1, minor: 2, patch: 3 };
-  const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
-    /package.xml$/,
-    /setup.py$/,
-  ]);
+  const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+    isIncludeChangeLog: false,
+  });
   for (const path of paths) {
     await setFileVersion(path, newVersion);
     const version = await getFileVersion(path);
@@ -81,10 +112,9 @@ runTest("set all package versions", async () => {
 });
 
 runTest("bump all package version - patch", async () => {
-  const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
-    /package.xml$/,
-    /setup.py$/,
-  ]);
+  const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+    isIncludeChangeLog: false,
+  });
   for (const path of paths) {
     await bumpFileVersion(path, "patch");
     const version = await getFileVersion(path);
@@ -93,10 +123,9 @@ runTest("bump all package version - patch", async () => {
 });
 
 runTest("bump all package version - minor", async () => {
-  const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
-    /package.xml$/,
-    /setup.py$/,
-  ]);
+  const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+    isIncludeChangeLog: false,
+  });
   for (const path of paths) {
     await bumpFileVersion(path, "minor");
     const version = await getFileVersion(path);
@@ -105,10 +134,9 @@ runTest("bump all package version - minor", async () => {
 });
 
 runTest("bump all package version - major", async () => {
-  const paths = await getPathsToFiles(TEST_PACKAGE_PATH, [
-    /package.xml$/,
-    /setup.py$/,
-  ]);
+  const paths = await getFilePaths(TEST_PACKAGE_PATH, {
+    isIncludeChangeLog: false,
+  });
   for (const path of paths) {
     await bumpFileVersion(path, "major");
     const version = await getFileVersion(path);
