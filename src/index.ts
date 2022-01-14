@@ -11,7 +11,7 @@ import type { Status } from "./file_system/types.ts";
 function logFailures(statuses: Status[]) {
   const errors = statuses.filter((status) => !status.isSuccess);
   if (errors.length > 0) {
-    console.error("\nFiles that were not updated:\n");
+    console.error("Files with errors:\n");
     for (const error of errors) {
       console.error(`* ${error.file}: ${error.message}`);
     }
@@ -44,7 +44,7 @@ const getFn: GetFn = async (path, isSkipSetupPy, isStopOnError) => {
     isStopOnError,
   });
   console.log(
-    `\nCurrent Version: ${getVersionString(version)}`,
+    `\nCurrent Version: ${getVersionString(version)}\n`,
   );
   logFailures(statuses);
 };
