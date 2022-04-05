@@ -32,8 +32,9 @@ export async function getFileVersion(path: string) {
   const fileText = await Deno.readTextFile(path);
   const fileName = basename(path);
   if (isRos1File(fileText)) {
-    throw new Error(`Cannot set version for ROS 1 file: ${path}`);
-  } else if (fileName === "package.xml") {
+    console.warn(`${fileName} may be a ROS1 file.`);
+  }
+  if (fileName === "package.xml") {
     return getPackageXmlVersion(fileText);
   } else if (fileName === "setup.py") {
     return getSetupPyVersion(fileText);
@@ -49,8 +50,9 @@ export async function setFileVersion(path: string, version: Version) {
   const fileName = basename(path);
   let newFileText;
   if (isRos1File(fileText)) {
-    throw new Error(`Cannot set version for ROS 1 file: ${path}`);
-  } else if (fileName === "package.xml") {
+    console.warn(`${fileName} may be a ROS1 file.`);
+  }
+  if (fileName === "package.xml") {
     newFileText = setPackageXmlVersion(fileText, version);
   } else if (fileName === "setup.py") {
     newFileText = setSetupPyVersion(fileText, version);
