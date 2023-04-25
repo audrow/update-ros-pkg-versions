@@ -11,7 +11,6 @@ the new versions.
   - [Suggested Workflow](#suggested-workflow)
     - [Bumping a ROS Repository's Version](#bumping-a-ros-repositorys-version)
     - [Updating a Repository with Inconsistent Package Versions](#updating-a-repository-with-inconsistent-package-versions)
-- [Tests](#tests)
 
 ## Setup
 
@@ -181,12 +180,4 @@ Note that step 4 and 5 can be consolidated into the following command:
 
 ```bash
 update-ros-pkg-versions set 0.11.4 --tag
-```
-
-## Tests
-
-You can test this program with the following command:
-
-```bash
-make test # or make test-all to run the tests, linter, and formatter
 ```
