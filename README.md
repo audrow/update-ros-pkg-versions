@@ -177,7 +177,3 @@ This may occur, for example, if a previous tag was made without updating the
    ```
 
 Note that step 4 and 5 can be consolidated into the following command:
-
-```bash
-update-ros-pkg-versions set 0.11.4 --tag
-```
